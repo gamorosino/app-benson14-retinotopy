@@ -13,7 +13,7 @@ template=`jq -r '.template' config.json`
 [ ! -d output ] && cp -LR ${fsdir} output && chmod -R +w  ./output/*
 
 # fit benson predicted prf based purely on anatomy: templates can be eitehr benson17 or benson14 
-[ ! -f ./output/mri/benson14_eccen.nii.gz ] && singularity exec -e -B ./:/subjects docker://nben/neuropythy:latest \
+[ ! -f ./output/mri/benson14_eccen.nii.gz ] && singularity exec -e -B ./:/subjects docker://nben/neuropythy:0.12.6 \
 	python -m neuropythy benson14_retinotopy \
 	--verbose /subjects/output \
 	--vol-format=nii.gz \
