@@ -5,17 +5,20 @@
 set -e
 set -x
 
-# grab important input configs
-fsdir=`jq -r '.freesurfer' config.json`
-template=`jq -r '.template' config.json`	
+fsdir=$(jq -r '.freesurfer' config.json)
+template=$(jq -r '.template' config.json)
 
 # make local copy of freesurfer directory
-[ ! -d output ] && cp -LR ${fsdir} output && chmod -R +w  ./output/*
+[ ! -d output ] && cp -LR "${fsdir}" output && chmod -R +w ./output/*
 
+APPTAINERENV_SUBJECT="$PWD/output" \
+APPTAINERENV_TEMPLATE="$template" \
 singularity exec -e docker://brainlife/neuropythy:0.12.6 \
 python - <<'PY'
+import os
 import sys
 import numpy as np
+
 for name, val in {
     "int": int,
     "float": float,
@@ -29,24 +32,19 @@ from neuropythy.commands.benson14_retinotopy import main
 
 argv = [
     "--verbose",
-    "${fsdir}",
-    "--surf-format=nii.gz",
-    "--template=Benson14",
+    os.environ["SUBJECT"],
+    "--template=" + os.environ["TEMPLATE"],
     "--vol-format=nii.gz",
 ]
 
 sys.exit(main(argv))
 PY
 
-
-# make output directories and clean up
-[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
-echo $FREESURFER_LICENSE > license.txt
-time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:7.1.1 ./benson2bl.sh
+[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1
+echo "$FREESURFER_LICENSE" > license.txt
+time singularity exec -e -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" docker://brainlife/freesurfer:7.1.1 ./benson2bl.sh
 
 if [ ! -f prf/prf_surfaces/rh.r2 ]; then
-	echo "creating binary surface files of visual vertices for visualizer"
-	time singularity exec -e docker://brainlife/dipy:1.4.0 python3 ./create_R2.py ./prf/prf_surfaces/rh.varea ./prf/prf_surfaces/lh.varea
+    echo "creating binary surface files of visual vertices for visualizer"
+    time singularity exec -e docker://brainlife/dipy:1.4.0 python3 ./create_R2.py ./prf/prf_surfaces/rh.varea ./prf/prf_surfaces/lh.varea
 fi
-
-	
