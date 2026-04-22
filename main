@@ -11,34 +11,12 @@ template=$(jq -r '.template' config.json)
 # make local copy of freesurfer directory
 [ ! -d output ] && cp -LR "${fsdir}" output && chmod -R +w ./output/*
 
-APPTAINERENV_SUBJECT="$PWD/output" \
-APPTAINERENV_TEMPLATE="$template" \
-singularity exec -e docker://brainlife/neuropythy:0.12.6 \
-python - <<'PY'
-import os
-import sys
-import numpy as np
-
-for name, val in {
-    "int": int,
-    "float": float,
-    "bool": bool,
-    "object": object,
-}.items():
-    if not hasattr(np, name):
-        setattr(np, name, val)
-
-from neuropythy.commands.benson14_retinotopy import main
-
-argv = [
-    "--verbose",
-    os.environ["SUBJECT"],
-    "--template=" + os.environ["TEMPLATE"],
-    "--vol-format=nii.gz",
-]
-
-sys.exit(main(argv))
-PY
+APPTAINERENV_SUBJECT="$PWD/output"
+singularity exec -e docker://brainlife/neuropythy:0.12.16  \
+        python -m neuropythy benson14_retinotopy \
+        --verbose --template ${template}  \
+        --vol-format=nii.gz \
+        ${APPTAINERENV_SUBJECT}
 
 [ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1
 echo "$FREESURFER_LICENSE" > license.txt
