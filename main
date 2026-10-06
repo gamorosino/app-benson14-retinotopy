@@ -1,19 +1,28 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=4,vmem=29gb,walltime=1:00:00
+#PBS -l nodes=1:ppn=2,walltime=4:00:00,vmem=20gb
 #PBS -N pRF
 
 set -e
 set -x
 
-fsdir=$(jq -r .freesurfer config.json)
+fsdir=$(jq -r '.freesurfer' config.json)
+template=$(jq -r '.template' config.json)
 
-[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
-echo $FREESURFER_LICENSE > license.txt
-time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/neuropythy:1.5 ./run.sh $fsdir
+# make local copy of freesurfer directory
+[ ! -d output ] && cp -LR "${fsdir}" output && chmod -R +w ./output/*
 
-time singularity exec -e docker://brainlife/mcr:r2019a ./compiled/main #create GIFTI-format surfaces too
+APPTAINERENV_SUBJECT="$PWD/output"
+singularity exec -e docker://brainlife/neuropythy:0.12.16  \
+        python -m neuropythy benson14_retinotopy \
+        --verbose --template ${template}  \
+        --vol-format=nii.gz \
+        ${APPTAINERENV_SUBJECT}
 
-cp prf/prf_surfaces/lh.varea.gii varea_surf/lh.parc.annot.gii
-cp prf/prf_surfaces/rh.varea.gii varea_surf/rh.parc.annot.gii
+[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1
+echo "$FREESURFER_LICENSE" > license.txt
+time singularity exec -e -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" docker://brainlife/freesurfer:7.1.1 ./benson2bl.sh
 
-rm ./prf/prf_surfs.mat
+if [ ! -f prf/prf_surfaces/rh.r2 ]; then
+    echo "creating binary surface files of visual vertices for visualizer"
+    time singularity exec -e docker://brainlife/dipy:1.4.0 python3 ./create_R2.py ./prf/prf_surfaces/rh.varea ./prf/prf_surfaces/lh.varea
+fi

@@ -1,22 +1,29 @@
-[![Abcdspec-compliant](https://img.shields.io/badge/ABCD_Spec-v1.1-green.svg)](https://github.com/brain-life/abcd-spec)
-[![Run on Brainlife.io](https://img.shields.io/badge/Brainlife-brainlife.app.559-blue.svg)](https://doi.org/https://doi.org/10.25663/brainlife.app.559)
-
 # pRFs / Benson14-Retinotopy
 
-This app will This app will automatically map population receptive field (pRF) data to the cortical surface of a participant using just the Freesurfer datatype as input. This method is based on methodologies published in Benson et al (2014) and runs code from the neuropythy docker container.
+[![Abcdspec-compliant](https://img.shields.io/badge/ABCD_Spec-v1.1-green.svg)](https://github.com/brain-life/abcd-spec)
+[![Run on Brainlife.io](https://img.shields.io/badge/Brainlife-brainlife.app.559-blue.svg)](https://doi.org/10.25663/brainlife.app.559)
 
-### Authors
+This app automatically maps population receptive field (pRF) estimates to the cortical surface using only a FreeSurfer subject as input. The method follows Benson et al. (2014) and is implemented via the neuropythy framework.
 
-- Brad Caron (bacaron@utexas.edu)
-- David Hunt (dhunt@iu.edu)
+The pipeline has been updated to improve compatibility with modern Python environments, container execution constraints, and NumPy deprecations.
 
-### Contributors
+## Authors
 
-- Soichi Hayashi (shayashi@iu.edu)
+* Brad Caron ([bacaron@utexas.edu](mailto:bacaron@utexas.edu))
+* David Hunt ([dhunt@iu.edu](mailto:dhunt@iu.edu))
+* Gabriele Amorosino ([g.amorosino@gmail.com](mailto:g.amorosino@gmail.com))
 
-### Funding Acknowledgement
+---
 
-brainlife.io is publicly funded and for the sustainability of the project it is helpful to Acknowledge the use of the platform. We kindly ask that you acknowledge the funding below in your publications and code reusing this code.
+## Contributors
+* Yang Zhang (yangzhang@utexas.edu)
+* Soichi Hayashi ([shayashi@iu.edu](mailto:shayashi@iu.edu))
+
+---
+
+## Funding Acknowledgement
+
+brainlife.io is publicly funded and for the sustainability of the project it is helpful to acknowledge the use of the platform. We kindly ask that you include the following funding sources in your publications and derivative work.
 
 [![NSF-BCS-1734853](https://img.shields.io/badge/NSF_BCS-1734853-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=1734853)
 [![NSF-BCS-1636893](https://img.shields.io/badge/NSF_BCS-1636893-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=1636893)
@@ -24,68 +31,125 @@ brainlife.io is publicly funded and for the sustainability of the project it is 
 [![NSF-IIS-1912270](https://img.shields.io/badge/NSF_IIS-1912270-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=1912270)
 [![NIH-NIBIB-R01EB029272](https://img.shields.io/badge/NIH_NIBIB-R01EB029272-green.svg)](https://grantome.com/grant/NIH/R01-EB029272-01)
 
-### Citations
+---
 
-We kindly ask that you cite the following articles when publishing papers and code using this code.
+## Citations
 
-1. Avesani, P., McPherson, B., Hayashi, S. et al. The open diffusion data derivatives, brain data upcycling via integrated publishing of derivatives and reproducible open cloud services. Sci Data 6, 69 (2019). https://doi.org/10.1038/s41597-019-0073-y
+Please cite the following when using this app:
 
-2. Benson NC, Butt OH, Datta R, Radoeva PD, Brainard DH, Aguirre GK. The retinotopic organization of striate cortex is well predicted by surface topology.
+1. Hayashi, S., Caron, B.A., Heinsfeld, A.S. et al.
+   brainlife.io: a decentralized and open-source cloud platform to support neuroscience research.
+   Nat Methods 21, 809–813 (2024). https://doi.org/10.1038/s41592-024-02237-2
 
-3. Benson NC, Butt OH, Brainard DH, Aguirre GK. Correction of distortion in flattened representations of the cortical surface allows prediction of V1-V3 functional organization from anatomy. PLoS Computational Biology. 2014;10:e1003538. doi: 10.1371/journal.pcbi.1003538.
+4. Benson NC, Butt OH, Datta R, Radoeva PD, Brainard DH, Aguirre GK.
+   *The retinotopic organization of striate cortex is well predicted by surface topology.*
 
-4. Benson NC, Winawer J. Bayesian analysis of retinotopic maps. Elife. 2018;7:e40224. Published 2018 Dec 6. doi:10.7554/eLife.40224
+5. Benson NC, Butt OH, Brainard DH, Aguirre GK.
+   *Correction of distortion in flattened cortical representations...*
+   PLoS Computational Biology. 2014;10:e1003538.
+   [https://doi.org/10.1371/journal.pcbi.1003538](https://doi.org/10.1371/journal.pcbi.1003538)
 
-#### MIT Copyright (c) 2020 brainlife.io The University of Texas at Austin and Indiana University
+6. Benson NC, Winawer J.
+   *Bayesian analysis of retinotopic maps.*
+   eLife. 2018;7:e40224.
+   [https://doi.org/10.7554/eLife.40224](https://doi.org/10.7554/eLife.40224)
+
+---
 
 ## Running the App
 
 ### On Brainlife.io
 
-You can submit this App online at [https://doi.org/https://doi.org/10.25663/brainlife.app.559](https://doi.org/https://doi.org/10.25663/brainlife.app.559) via the 'Execute' tab.
+Run directly via:
+[https://doi.org/10.25663/brainlife.app.559](https://doi.org/10.25663/brainlife.app.559)
 
-### Running Locally (on your machine)
+---
 
-1. git clone this repo
+### Running Locally
 
-2. Inside the cloned directory, create `config.json` with something like the following content with paths to your input files.
+#### 1. Clone the repository
+
+```bash
+git clone <repo>
+cd <repo>
+```
+
+#### 2. Create `config.json`
 
 ```json
 {
-	"freesurfer": "/input/freesurfer/output",
-	"template": "Benson14"
+  "freesurfer": "/input/freesurfer/output",
+  "template": "Benson14"
 }
 ```
 
-### Sample Datasets
+---
 
-You can download sample datasets from Brainlife using [Brainlife CLI](https://github.com/brain-life/cli).
-
-```
-npm install -g brainlife
-bl login
-mkdir input
-bl dataset download
-```
-
-3. Launch the App by executing 'main'
+#### 3. Run
 
 ```bash
 ./main
 ```
 
+---
+
+### Notes on Execution
+
+* The pipeline:
+
+  * copies the FreeSurfer subject locally (`./output`)
+  * runs neuropythy directly via Python API inside the container
+* No bind mounts are required
+* Environment variables are used for passing parameters into the container
+* Compatible with restricted HPC environments
+
+---
+
 ## Output
 
-The main output of this App is a prf datatype, a parcellation/volume datatype containing the visual areas in volume space, a surface/data datatype containing the surface data files, a surface/vertices datatype containing the pial and white surfaces, and a parcellation/surface-deprecated datatype combining the surface/data and surface/vertices into the same datatype.
+The app produces:
 
-#### Product.json
+* **prf/**
+  pRF estimates on cortical surfaces
 
-The secondary output of this app is `product.json`. This file allows web interfaces, DB and API calls on the results of the processing.
+* **Volume outputs**
+  Retinotopic maps in volumetric space
 
-### Dependencies
+* **Surface outputs**
+  Surface data and geometry (pial/white)
 
-This App only requires [singularity](https://www.sylabs.io/singularity/) to run. If you don't have singularity, you will need to install following dependencies.   
+* **Derived datatypes**
 
-- neuropythy: https://github.com/noahbenson/neuropythy
+  * surface/data
+  * surface/vertices
+  * parcellation/volume
+  * prf
 
-#### MIT Copyright (c) 2020 brainlife.io The University of Texas at Austin and Indiana University
+---
+
+### product.json
+
+Provides structured metadata for:
+
+* web visualization
+* API queries
+* downstream processing
+
+---
+
+## Dependencies
+
+Primary dependency:
+
+* [Singularity / Apptainer](https://apptainer.org)
+
+If running without containers:
+
+* neuropythy
+  [https://github.com/noahbenson/neuropythy](https://github.com/noahbenson/neuropythy)
+
+---
+
+## License
+
+MIT License
